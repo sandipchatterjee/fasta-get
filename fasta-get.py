@@ -38,19 +38,25 @@ fileNameList = filter(lambda x: 'protein.faa.gz' in x,fileNameList)
 
 newFileName = time.strftime("%m%d%y_%H%M%S")+'_refseq_complete.fasta'
 extractedFile = open(newFileName, 'ab')
+extractedFileLog = open(newFileName+'.log', 'ab')
 
 fileCount = 0
 for fileName in fileNameList:
 	ftp.retrbinary('RETR '+fileName, open(fileName, 'wb').write)
 	gzipFile = gzip.open(fileName, 'rb')
 	extractedFile.write(gzipFile.read())
+	extractedFileLog.write(fileName+" downloaded, extracted, and appended to master file")
 	gzipFile.close()
 	os.remove(fileName)
 	fileCount += 1
 
+endStatus = "Downloaded, extracted, and concatenated "+str(fileCount)+" files in "+str((time.time()-startTime)/60)+" minutes"
+
+extractedFileLog.write(endStatus)
+extractedFileLog.close()
 extractedFile.close()
 
-print "Downloaded, extracted, and concatenated "+str(fileCount)+" files in "+str((time.time()-startTime)/60)+" minutes"
+print endStatus
 print "Saved compiled data to "+newFileName
 print "(DATE_CURRENTTIME_refseq_complete.fasta)"
 
